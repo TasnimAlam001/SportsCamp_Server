@@ -29,14 +29,45 @@ async function run() {
 
     const classCollection = client.db("assignment-12").collection("class");
     const instructorCollection = client.db("assignment-12").collection("instructor");
+    const selectedClassCollection = client.db("assignment-12").collection("selectedClass");
 
-    app.get('/class', async(req,res)=>{
+    app.get('/classes', async(req,res)=>{
         const result = await classCollection.find().toArray();
         res.send(result);
     })
+
+
     app.get('/instructor', async(req,res)=>{
         const result = await instructorCollection.find().toArray();
         res.send(result);
+    })
+
+
+
+    app.get('/selectedClass', async(req,res) => {
+      const email = req.query.email;
+      console.log(email);
+      
+      if(!email){
+        res.send([]);
+      }
+
+      // const decodedEmail = req.decoded.email;
+      // if(email !== decodedEmail){
+      //   return res.status(403).send({error: true, message: 'forbidden access'})
+      // }
+
+      const query = { email: email };
+      const result = await selectedClassCollection.find(query).toArray()
+      res.send(result);
+    })
+
+    app.post('/selectedClass', async(req,res)=>{
+      const data = req.body;
+      console.log(data);
+
+      const result = await selectedClassCollection.insertOne(data);
+      res.send(result);
     })
 
 
