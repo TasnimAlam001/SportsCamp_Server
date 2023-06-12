@@ -89,7 +89,7 @@ async function run() {
       res.send(result);
     })
 
-    app.get('/users/admin/:email',verifyJWT,  async(req,res)=>{
+    app.get('/users/admin/:email',verifyJWT, async(req,res)=>{
       const email = req.params.email;
       if(req.decoded.email !== email){
         res.send({admin: false})
@@ -98,6 +98,28 @@ async function run() {
       const query= {email:email}
       const user = await usersCollection.findOne(query);
       const result = {admin: user?.role === 'admin'}
+      res.send(result);
+    })
+    app.get('/users/instructor/:email',verifyJWT, async(req,res)=>{
+      const email = req.params.email;
+      if(req.decoded.email !== email){
+        res.send({instructor: false})
+      }
+
+      const query= {email:email}
+      const user = await usersCollection.findOne(query);
+      const result = {instructor: user?.role === 'instructor'}
+      res.send(result);
+    })
+    app.get('/users/user/:email',verifyJWT, async(req,res)=>{
+      const email = req.params.email;
+      if(req.decoded.email !== email){
+        res.send({user: false})
+      }
+
+      const query= {email:email}
+      const user = await usersCollection.findOne(query);
+      const result = {user: user?.role === 'user'}
       res.send(result);
     })
 
