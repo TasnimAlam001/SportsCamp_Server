@@ -59,11 +59,20 @@ async function run() {
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
       res.send({token})
     })
+    const verifyAdmin = async(req, res, next)=>{
+      const email = req.decoded.email;
+      const query = {email: email}
+      const user = await usersCollection.findOne(query);
+      if(user?.role !== 'admin'){
+        return res.status(403).send({error: true, message: 'forbidden access'});
+      }
+      next();
+    }
 
 
     // USER CODES..........
 
-    app.get('/users', async(req,res)=>{
+    app.get('/users',verifyJWT,verifyAdmin, async(req,res)=>{
       const result = await usersCollection.find().toArray();
       res.send(result);      
     })
@@ -105,7 +114,7 @@ async function run() {
     })
 
 
-    app.post('/users', async(req,res)=>{
+    app.post('/users',  async(req,res)=>{
       const user = req.body; 
       const query = {email: user.email}
       const existingUser = await usersCollection.findOne(query);
