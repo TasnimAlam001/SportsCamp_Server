@@ -70,6 +70,10 @@ async function run() {
     }
 
 
+
+
+
+
     // USER CODES..........
 
     app.get('/users',verifyJWT,verifyAdmin, async(req,res)=>{
@@ -153,7 +157,7 @@ async function run() {
 
     // approve and reject class code............
 
-    app.patch('/newClass/approve/:id',verifyJWT,verifyAdmin, async(req,res)=>{
+    app.patch('/newClass/approve/:id', async(req,res)=>{
       const id = req.params.id;
       const filter = {_id:new ObjectId(id)}
       const updateStatus = {
@@ -165,7 +169,7 @@ async function run() {
       res.send(result);
     })
 
-    app.patch('/newClass/reject/:id',verifyJWT,verifyAdmin, async(req,res)=>{
+    app.patch('/newClass/reject/:id', async(req,res)=>{
       const id = req.params.id;
       const filter = {_id:new ObjectId(id)}
       const updateStatus = {
@@ -191,6 +195,14 @@ async function run() {
         const result = await classCollection.find().toArray();
         res.send(result);
     })
+
+    app.post('/classes', async(req,res)=>{
+      const data = req.body;
+      console.log(data);
+      const result = await classCollection.insertOne(data);
+      res.send(result);
+    })
+    
     app.get('/newClass',verifyJWT,verifyAdmin, async(req,res)=>{
         const result = await pendingClassCollection.find().toArray();
         res.send(result);
@@ -259,7 +271,6 @@ async function run() {
     app.post('/selectedClass', async(req,res)=>{
       const data = req.body;
       console.log(data);
-
       const result = await selectedClassCollection.insertOne(data);
       res.send(result);
     })
