@@ -159,6 +159,10 @@ async function run() {
         const result = await classCollection.find().toArray();
         res.send(result);
     })
+    app.get('/newClass',verifyJWT,verifyAdmin, async(req,res)=>{
+        const result = await pendingClassCollection.find().toArray();
+        res.send(result);
+    })
     app.post('/newClass', verifyJWT, async(req,res)=>{
       const newClass= req.body;
       const result = await pendingClassCollection.insertOne(newClass)
