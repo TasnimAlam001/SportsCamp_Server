@@ -171,10 +171,13 @@ async function run() {
 
     app.patch('/newClass/reject/:id', async(req,res)=>{
       const id = req.params.id;
+      const message = req.body.message;
+      console.log(message);
       const filter = {_id:new ObjectId(id)}
       const updateStatus = {
         $set: {
-          status: 'rejected'
+          status: 'rejected',
+          feedback: `${message.message}`
         },
       };
       const result = await pendingClassCollection.updateOne(filter,updateStatus);
