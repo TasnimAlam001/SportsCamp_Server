@@ -206,7 +206,7 @@ async function run() {
       res.send(result);
     })
     
-    app.get('/newClass',verifyJWT,verifyAdmin, async(req,res)=>{
+    app.get('/newClass',verifyJWT, async(req,res)=>{
         const result = await pendingClassCollection.find().toArray();
         res.send(result);
     })
@@ -216,7 +216,7 @@ async function run() {
       res.send(result);
     })
 
-    app.get('/newClass', verifyJWT, async(req,res) => {
+    app.get('/newClass/myClass',verifyJWT,  async(req,res) => {
       const email = req.query.email;
       console.log(email);
       
