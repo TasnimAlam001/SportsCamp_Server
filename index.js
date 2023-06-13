@@ -30,8 +30,6 @@ const verifyJWT = (req,res,next)=>{
 
 
 
-
-
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.zlgqora.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -53,6 +51,8 @@ async function run() {
     const classCollection = client.db("assignment-12").collection("class");
     const instructorCollection = client.db("assignment-12").collection("instructor");
     const selectedClassCollection = client.db("assignment-12").collection("selectedClass");
+    const pendingClassCollection = client.db("assignment-12").collection("pendingClass");
+
 
     app.post('/jwt', (req,res)=>{
       const user= req.body;
@@ -152,10 +152,41 @@ async function run() {
 
 
 
+
+    //classes codee...........
+
     app.get('/classes', async(req,res)=>{
         const result = await classCollection.find().toArray();
         res.send(result);
     })
+    app.post('/newClass', verifyJWT, async(req,res)=>{
+      const newClass= req.body;
+      const result = await pendingClassCollection.insertOne(newClass)
+      res.send(result);
+    })
+
+    app.get('/newClass', verifyJWT, async(req,res) => {
+      const email = req.query.email;
+      console.log(email);
+      
+      if(!email){
+        res.send([]);
+      }
+
+      const decodedEmail = req.decoded.email;
+      if(email !== decodedEmail){
+        return res.status(403).send({error: true, message: 'forbidden access'})
+      }
+
+      const query = { email: email };
+      const result = await pendingClassCollection.find(query).toArray()
+      res.send(result);
+    })
+
+
+
+
+
 
 
     app.get('/instructor', async(req,res)=>{
