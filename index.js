@@ -151,6 +151,38 @@ async function run() {
 
 
 
+    // approve and reject class code............
+
+    app.patch('/newClass/approve/:id',verifyJWT,verifyAdmin, async(req,res)=>{
+      const id = req.params.id;
+      const filter = {_id:new ObjectId(id)}
+      const updateStatus = {
+        $set: {
+          status: 'approved'
+        },
+      };
+      const result = await pendingClassCollection.updateOne(filter,updateStatus);
+      res.send(result);
+    })
+
+    app.patch('/newClass/reject/:id',verifyJWT,verifyAdmin, async(req,res)=>{
+      const id = req.params.id;
+      const filter = {_id:new ObjectId(id)}
+      const updateStatus = {
+        $set: {
+          status: 'rejected'
+        },
+      };
+      const result = await pendingClassCollection.updateOne(filter,updateStatus);
+      res.send(result);
+    })
+
+
+
+
+
+
+
 
 
     //classes codee...........
@@ -191,6 +223,8 @@ async function run() {
 
 
 
+
+    //instructor code............
 
 
     app.get('/instructor', async(req,res)=>{
