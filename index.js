@@ -53,6 +53,8 @@ async function run() {
     const instructorCollection = client.db("assignment-12").collection("instructor");
     const selectedClassCollection = client.db("assignment-12").collection("selectedClass");
     const pendingClassCollection = client.db("assignment-12").collection("pendingClass");
+    const paymentCollection = client.db("assignment-12").collection("payment");
+    const expectCollection = client.db("assignment-12").collection("expect");
 
 
     app.post('/jwt', (req,res)=>{
@@ -72,6 +74,14 @@ async function run() {
 
 
 
+
+    //............
+
+    
+    app.get('/expect', async(req,res)=>{
+      const result = await expectCollection.find().toArray();
+      res.send(result);      
+    })
 
 
 
@@ -153,6 +163,17 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     })
+
+
+    app.delete('/users/:id', async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)};
+      const result = await usersCollection.deleteOne(query);
+      res.send(result);
+    })
+
+
+
 
 
 
@@ -247,6 +268,12 @@ async function run() {
         const result = await instructorCollection.find().toArray();
         res.send(result);
     })
+    app.post('/instructor', async(req,res)=>{
+      const data = req.body;
+      console.log(data)
+      const result = await instructorCollection.insertOne(data);
+      res.send(result);
+    })
 
 
 
@@ -286,12 +313,48 @@ async function run() {
       res.send(result);
     })
 
+    app.patch('/selectedClass/:id', async(req,res)=>{
+      const id = req.params.id;
+      const payment = req.body.payment;
+      console.log(payment);
+      const filter = {_id:new ObjectId(id)}
+      const updateStatus = {
+        $set: {
+          payment: `${payment.payment}`
+        },
+      };
+      const result = await selectedClassCollection.updateOne(filter,updateStatus);
+      res.send(result);
+    })
+
+
+
 
 
     //payment.....
 
+
+  app.get('/payments/user', verifyJWT, async(req,res) => {
+    const email = req.query.email;
+    console.log(email);
+    
+    if(!email){
+      res.send([]);
+    }
+
+    const decodedEmail = req.decoded.email;
+    if(email !== decodedEmail){
+      return res.status(403).send({error: true, message: 'forbidden access'})
+    }
+
+    const query = { email: email};
+    const result = await paymentCollection.find(query).toArray()
+    res.send(result);
+  })
+
+
     app.post('/create-payment-intent', async (req, res) => {
-      const { price } = req.body;
+      const {price}  = req.body;
       const amount = parseInt(price * 100);
       const paymentIntent = await stripe.paymentIntents.create({
         amount: amount,
@@ -303,6 +366,36 @@ async function run() {
         clientSecret: paymentIntent.client_secret
       })
     })
+
+    // app.post('/payments', verifyJWT, async (req, res) => {
+    //   const payment = req.body;
+    //   const insertResult = await paymentCollection.insertOne(payment);
+
+    //   const query = { _id: { $in: payment.cartItems.map(id => new ObjectId(id)) } }
+    //   const deleteResult = await cartCollection.deleteMany(query)
+
+    //   res.send({ insertResult, deleteResult });
+    // })
+    app.post('/payments', verifyJWT, async (req, res) => {
+      const payment = req.body;
+      const insertResult = await paymentCollection.insertOne(payment);
+
+      // const query = { _id: { $in: payment.cartItems.map(id => new ObjectId(id)) } }
+      // const deleteResult = await cartCollection.deleteMany(query)
+
+      res.send(insertResult );
+    })
+
+
+
+
+
+
+
+
+
+
+
 
 
     // Send a ping to confirm a successful connection
